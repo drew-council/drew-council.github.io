@@ -67,6 +67,24 @@ pypandoc.convert_text(
 )
 ```
 
+## present
+
+> Turn the terminal tools post into herdr workspaces with presenterm decks
+
+**OPTIONS**
+
+- session
+  - flags: -s --session
+  - type: string
+  - desc: herdr session to use (started headless if not running; default is the current one)
+- clean
+  - flags: --clean
+  - desc: close the presentation workspaces before creating them
+
+```bash
+nu scripts/present.nu ${session:+--session "$session"} ${clean:+--clean}
+```
+
 ## post (name)
 
 > Create a new post with correct structure
