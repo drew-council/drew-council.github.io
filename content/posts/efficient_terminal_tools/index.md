@@ -1,25 +1,28 @@
 +++
 date = "2025-07-29T22:19:41"
+lastmod = "2026-09-16T00:00:00"
 draft = false
 title = "efficient terminal tools"
 +++
 
 In this post, I hope to give the best, most useful, and most practical terminal-based tools that I regularly use. These are the tools I wish someone had forced me to try years ago, so I hope to convince you to try them here.
 
-> This post was originally written for a presentation I gave to coworkers. I plan to update it over time with any new discoveries I make.
+> This post was originally written for a presentation I gave to coworkers in 2025. I updated it in September 2026 for a second presentation, and I plan to keep updating it with any new discoveries I make.
 
 <!-- mdformat-toc start --slug=github --no-anchors --maxlevel=6 --minlevel=1 -->
 
+- [philosophy](#philosophy)
 - [prerequisite: you need a good tty](#prerequisite-you-need-a-good-tty)
 - [cht.sh](#chtsh)
-- [gh-copilot](#gh-copilot)
 - [ripgrep and fd](#ripgrep-and-fd)
-- [gh](#gh)
 - [atuin](#atuin)
+- [yazi](#yazi)
 - [lazygit and lazydocker](#lazygit-and-lazydocker)
-- [vim](#vim)
 - [nushell](#nushell)
-- [Honorable Mentions](#honorable-mentions)
+- [gh-stack](#gh-stack)
+- [tuicr](#tuicr)
+- [herdr](#herdr)
+- [pi](#pi)
 
 <!-- mdformat-toc end -->
 
@@ -33,9 +36,21 @@ git add . && git commit -m "changes" && git push
 
 <figcaption>still a classic, but there is so much more</figcaption>
 
-Later, I saw online what certain engineers and [bash wizards](https://www.youtube.com/watch?v=L967hYylZuc) were capable of. Certain things feel intractable—like mastering every `awk` and `bash` nuance. However, as I used the tools, I got more comfortable and began to move faster.
+Later, I saw online what certain engineers and [bash wizards](https://www.youtube.com/watch?v=L967hYylZuc) were capable of. Certain things feel intractable, like mastering every `awk` and `bash` nuance. However, as I used the tools, I got more comfortable and began to move faster.
 
-Additionally, there’s been an influx of usability improvements. As developer interest grows in languages like Rust and Zig, the chance to redesign from scratch has led to a new wave of excellent, easy-to-use tools.
+There has also been an influx of usability improvements. As developer interest grows in languages like Rust and Zig, the chance to redesign from scratch has led to a new wave of excellent, easy-to-use tools.
+
+---
+
+## philosophy
+
+Before the tools themselves, three rules that shape which ones I pick and how I use them.
+
+**Use open source tools.** Every tool below has its source on GitHub. That means I can read how it works when the docs fall short, I can fix it when it breaks, and it does not vanish or change its pricing model when a company pivots.
+
+**Define stuff in code.** All of my configuration for every tool in this post lives in [my nixconf repo](https://github.com/drew-council/nixconf). Keybinds, themes, aliases, and the tools themselves are declared in Nix and applied with [home-manager](https://github.com/nix-community/home-manager). A new laptop goes from blank to my full setup with one command. The bigger win is that every tweak is a commit, so I can `git blame` my own config to remember why I set something six months ago.
+
+**If it gets in your way, patch it.** Open source plus config-as-code makes this cheap. When a tool does something I don't like, I fork it, make a small change on a branch, and point my flake input at that branch. I have done this for [tuicr](#tuicr) to add `nu` syntax highlighting and to fix reviewing very large PRs. Neither change was more than a few dozen lines. You do not need to be a maintainer to fix the one thing that annoys you.
 
 ---
 
@@ -66,16 +81,6 @@ First, you can use it directly from your browser _or through curl_: `curl cht.sh
 Or, you can install their [command line client](https://github.com/chubin/cheat.sh#command-line-client-chtsh). I prefer this, as you don't need to use URL syntax to search. I'll run `cht.sh tar`:
 
 {{< include-html "content/posts/efficient_terminal_tools/html/cht_sh.html" >}}
-
----
-
-## gh-copilot
-
-For the more complicated tasks, or for when you're not even sure which _command_ you need, I will often reach for the **[gh-copilot](https://github.com/github/gh-copilot) extension for `gh`**.
-
-{{< asciicast src="/casts/gh-copilot.demo" >}}
-
-I have this aliased to `??` in my terminal so I can quickly search for commands. I find this to be a lot more ergonomic than switching to something like [Warp Terminal](https://www.warp.dev/) when I need to search how to use a single command. [^warp]
 
 ---
 
@@ -122,6 +127,18 @@ It stores all of your command history in a local SQLite database and replaces yo
 
 ---
 
+## yazi
+
+`cd` and `ls` get you surprisingly far, but sometimes you just want to _look around_ a directory.
+
+**[yazi](https://github.com/sxyazi/yazi)** is a file manager TUI with vim keybinds. It shows three columns: the parent directory, the current directory, and a preview of whatever is under the cursor. Press `h` and `l` to move up and down the tree, `j` and `k` to move through files, and `Enter` to open one.
+
+The preview pane is what sold me on it. Source files get syntax highlighting. Images, PDFs, and even video thumbnails render right in the terminal through the kitty graphics protocol. I use it constantly to skim through a folder of screenshots or check a diagram without leaving the shell.
+
+The other trick is the shell wrapper. I have it aliased to `y`, and when I quit `yazi`, my shell is now in whatever directory I navigated to. It ends up being a much faster way to get somewhere deep in a repo than tab-completing a path.
+
+---
+
 ## lazygit and lazydocker
 
 `lazygit` and `lazydocker` are wonderful TUIs for `git` and `docker` respectively by [@jesseduffield](https://github.com/jesseduffield/).
@@ -136,23 +153,13 @@ Both have almost entirely replaced most of the `docker` and `git` calls I would 
 
 ---
 
-## vim
-
-I don't mean to beat a dead horse, but I truly don't understand why vi-style keybindings are not the industry standard.
-
-I'm not adamant that you use full-fledged `vim` itself. VS Code has [VSCodeVim](https://github.com/VSCodeVim/Vim), which works great most of the time. I use [zed](https://zed.dev/) for my development, which has an extremely robust vim mode. Even `emacs` has "evil" mode.
-
-Regardless, I _highly_ recommend taking a week, or even a weekend, to just give the keybinds a try in your favorite editor. Once you summit the initial learning curve, you will really see the benefits. I was a doubter myself at first, but after trying it, I haven't looked back.
-
----
-
 ## nushell
 
 [Nushell](https://www.nushell.sh/) is my absolute favorite of these tools.
 
 It is probably wrong to even call it a _tool_, as `nu` is a fully-fledged _shell_ which can be in lieu of `bash`/`zsh`/`fish`. [^posix] The key feature that sets `nu` apart from these is **Pipelines**.
 
-Pipelines are a lot like traditional piping of stdin to stdout, but in `nu` they can store _structured data_. These look a lot like `json` and are printed as nicely formatted tables. You can then leverage the `nu` language functional operators to do some fairly powerful things:
+Pipelines are a lot like traditional piping of stdin to stdout, but in `nu` they can store _structured data_. These look a lot like `json` and are printed as nicely formatted tables. You can then use the `nu` language functional operators to do some fairly powerful things:
 
 {{< asciicast src="/casts/nushell.demo" >}}
 
@@ -186,27 +193,68 @@ The nice things here:
 - There is a first-class `filesize` datatype, which we convert a string to and sort by. I don't even want to know the crazy scripting it would take to properly compare mega**bits** with kilo**bytes** without this.
 - The biggest selling point for me: _I didn't have to look up anything._ No googling. No reading manpages. `nu` has a very high skill floor, and it can become very powerful if you take the time to read through the [excellent Nushell Book](https://www.nushell.sh/book/).
 
-## Honorable Mentions
+---
 
-These tools are more niche, but come in handy for specific tasks.
+## gh-stack
 
-I have never had a good experience going to shady file type conversion websites. They are always slow, covered in ads, and usually don't work.
+Large PRs are hard to review. The usual advice is to split them up, but then you have three branches that depend on each other, and a change to the first one means manually rebasing the other two.
 
-For converting, cropping, editing, and re-encoding videos, use [**ffmpeg**](https://ffmpeg.org/). For images, use [**imagemagick**](https://imagemagick.org/).
-
-> This isn't a terminal tool, but for PDF arranging, try [**pdfarranger**](https://github.com/pdfarranger/pdfarranger).
-
-If you are working with docker images, [**dive**](https://github.com/wagoodman/dive) is a great tool for inspecting and analyzing docker images. It has often highlighted issues I could not find with any other image analysis tool.
-
-`bat` is just `cat` with syntax highlighting. I use it all the time, especially because it behaves exactly like `cat` if it detects it is being piped into another command.
-
-\[^warp\]: Warp Terminal is pretty cool, but it lacks a lot of the rendering features I have come to expect from my TTY and can have some compatibility issues with some TUI applications.
-
-\[^multithread\]: A capable user of [GNU Parallel](https://www.gnu.org/software/parallel/) can make `grep` and `find` operations parallelized, which is useful in scripting. However, for most use cases, having these optimizations compiled in is very beneficial.
-
-\[^posix\]:
-Similar to `fish`, `nu` is _extremely_ not POSIX compliant, so copy-pasting or running scripts with `nu` as the interpreter are bound to fail often.
+**[gh-stack](https://github.com/github/gh-stack)** is a `gh` extension that manages that chain for you. A stack is an ordered list of branches, each based on the one below it, with one PR per branch. The reviewer for each PR only sees that layer's diff.
 
 ```
-Never set a non-POSIX shell as your system's default shell. I set `nu` as the default program that launches when I start my TTY.
+(main) <- auth <- api <- frontend
 ```
+
+The workflow is `gh stack init auth` for the first layer, commit, then `gh stack add api` for the next, and so on. When you are done, `gh stack submit` pushes every branch and opens the PRs with the right base branches.
+
+The part I use the most is going back in history. When a reviewer asks for a change in the bottom layer, I check out that branch, make the commit, and run one command to replay every branch above it:
+
+```bash
+gh stack down
+git commit -am "address review on auth"
+gh stack rebase --upstack
+gh stack top
+gh stack push
+```
+
+Every PR in the stack updates, and none of the upper layers show the bottom layer's change in their diff. When the bottom PR merges, `gh stack sync` rebases the rest onto trunk and cleans up. I have a small `gs` wrapper in my nixconf that adds single-letter aliases and a `review` command to open a stack's layers in [tuicr](#tuicr).
+
+---
+
+## tuicr
+
+Reviewing code in a browser is slow. Every file expands and collapses, comments open little text boxes, and none of it responds to the keyboard.
+
+**[tuicr](https://github.com/agavra/tuicr)** is a code review TUI with vim keybinds. It shows one continuous diff across every changed file, so you scroll through the whole change with `j` and `k`. Press `c` on a line to leave a comment, `v` to select a range, and it tracks which hunks you have already reviewed across sessions. You can point it at a commit range, your working tree, or a PR number with `tuicr pr 1234`.
+
+When you are done, you pick where the review goes. It can post as a real GitHub review, with every comment attached to the right line. Or it copies the whole thing to your clipboard as structured markdown. The second option is the one I did not expect to use so much. Paste that markdown into a coding agent and it has the file, line numbers, and your comment for every item, so it can go address all of them at once.
+
+This is also the tool I patched most recently. The upstream version had no syntax highlighting for `nu` scripts and could not open PRs with more than a few hundred files. Both were small fixes, and my flake points at [my branch](https://github.com/drew-council/tuicr/tree/bizmythy-tweaks) until they land upstream.
+
+---
+
+## herdr
+
+If you have used `tmux` you know the pitch: one terminal holds many shells, and they keep running when you disconnect. You also know that getting `tmux` to feel nice takes an afternoon of config.
+
+**[herdr](https://github.com/herdrdev/herdr)** is a terminal multiplexer that ships nicely configured out of the box, and it is built around running coding agents. Workspaces hold tabs, tabs hold panes, and a sidebar shows every workspace with the status of any agent running in it. You can see at a glance which agents are working, which are done, and which are blocked waiting on you.
+
+**Detach and resume from anywhere.** The server runs separately from the client, so closing my laptop lid or dropping an SSH connection does not touch the sessions. I attach to my desktop from my laptop over `herdr --remote`, and the layout is exactly where I left it. I also serve it as a web terminal on my home network, so I can check on a long-running agent from my phone. The mobile layout collapses to a single column, and it is surprisingly usable.
+
+**Easy tabbing around.** The defaults are already good, but I bound the common actions to `alt+` chords so they are one keypress: `alt+t` for a new tab, `alt+v` and `alt+-` to split, `alt+hjkl` to move between panes. It is basically `tmux` with someone else's well-tuned config.
+
+**A CLI and a skill for agents.** Every part of the session is reachable through a socket API and the `herdr` CLI. Agents can split a pane, launch another agent in it, send it a prompt, wait for its status to change, and read its output. Herdr ships an [agent skill](https://herdr.dev/docs/agent-skill/) that teaches this to any agent running inside a pane. This turns into a very powerful way to run a lot of work at once. I can ask one agent to fan a task out to three others in separate worktrees, then check in on each from the sidebar rather than a wall of nested tool output.
+
+**An extension system.** Plugins are a small manifest plus any executable. Herdr calls the executable for a keybind, and the executable talks back over the socket. Mine is a [Go program in my nixconf](https://github.com/drew-council/nixconf/tree/main/home/programs/herdr) that adds directional navigation across panes, tabs, and workspaces, an `alt+g` popup for `lazygit` and `alt+b` for `btop`, and a workspace picker that creates a new git worktree and opens it in one step. The plugin manifest and the keybind config are generated from the same Nix expression, so adding a popup app is a three-line change.
+
+---
+
+## pi
+
+<!-- TODO: this is the big one. filled in next. -->
+
+---
+
+[^multithread]: A capable user of [GNU Parallel](https://www.gnu.org/software/parallel/) can make `grep` and `find` operations parallelized, which is useful in scripting. However, for most use cases, having these optimizations compiled in is very beneficial.
+
+[^posix]: Similar to `fish`, `nu` is _extremely_ not POSIX compliant, so copy-pasting or running scripts with `nu` as the interpreter are bound to fail often. Never set a non-POSIX shell as your system's default shell. I set `nu` as the default program that launches when I start my TTY.
