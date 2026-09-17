@@ -5,7 +5,9 @@
 # Every `## section` of the post becomes a herdr workspace whose label is the
 # section title. Inside it, a vertical split holds a plain shell on the left
 # for live demos and a presenterm deck on the right showing that section's
-# markdown. Sections listed in NO_DEMO only get the presenterm pane.
+# markdown. Sections listed in NO_DEMO only get the presenterm pane. DEMO_CWD
+# picks the directory each demo shell opens in, and demo-command can start
+# something in it (tuicr opens a review of your most recent PR).
 #
 # The decks are generated from index.md on every run, so edits to the post
 # propagate. presenterm hot-reloads the file unless you pass --present via
@@ -29,6 +31,18 @@ const NO_DEMO = [
   "herdr"
 ]
 
+# Working directory for each demo section (by slug). Anything not listed
+# uses DEFAULT_DEMO_CWD, or --cwd if given.
+const DEFAULT_DEMO_CWD = "~/nixconf"
+const DEMO_CWD = {
+  "ripgrep-and-fd": "~/work/sheer"
+  "gh": "~/work/sheer"
+  "lazygit-and-lazydocker": "~/work/sheer"
+  "gh-stack": "~/work/sheer"
+  "tuicr": "~/work/sheer"
+  "pi": "~/.pi"
+}
+
 # Logos rendered in the tty section to show off the kitty graphics protocol.
 const LOGOS = [
   { name: "ghostty", url: "https://raw.githubusercontent.com/ghostty-org/ghostty/main/images/icons/icon_512.png" }
@@ -47,7 +61,7 @@ const DEFAULT_ROWS = 40
 def main [
   --post: string = "content/posts/efficient_terminal_tools/index.md"  # markdown source
   --session (-s): string  # herdr session name; started headless if not running
-  --cwd: string  # working directory for the demo shells (default: repo root)
+  --cwd: string  # working directory for demo shells not listed in DEMO_CWD (default: ~/nixconf)
   --out: string  # where generated decks and images go
   --only: string  # comma separated section slugs to set up
   --width: int = 0  # override the estimated slide width (columns)
@@ -60,7 +74,7 @@ def main [
   let post_path = $post | path expand
   let post_dir = $post_path | path dirname
   let repo_root = $post_dir | path join .. .. .. | path expand
-  let demo_cwd = if ($cwd | is-empty) { $repo_root } else { $cwd | path expand }
+  let fallback_cwd = if ($cwd | is-empty) { $DEFAULT_DEMO_CWD } else { $cwd } | path expand
   let build_dir = if ($out | is-empty) {
     $env.XDG_CACHE_HOME? | default ($env.HOME | path join .cache) | path join terminal-tools-presentation
   } else {
@@ -95,6 +109,7 @@ def main [
   for sec in $sections {
     let deck = $build_dir | path join decks $"($sec.index | fill --width 2 --alignment right --character "0")-($sec.slug).md"
     let demo = $sec.slug not-in $NO_DEMO
+    let demo_cwd = demo-cwd $sec.slug $fallback_cwd
     let already = $existing | where label == $sec.title
 
     if $dry_run {
@@ -137,6 +152,11 @@ def main [
     let cmd = $"presenterm ($presenterm_flags) '($deck)'" | str replace --all --regex '\s+' ' '
     herdr-json [pane run $slides_pane $cmd] | ignore
 
+    if $demo {
+      let demo_cmd = demo-command $sec.slug $demo_cwd
+      if ($demo_cmd | is-not-empty) { herdr-json [pane run $root $demo_cmd] | ignore }
+    }
+
     $summary = ($summary | append { section: $sec.title, demo: $demo, workspace: $ws_id, deck: $deck })
   }
 
@@ -147,6 +167,46 @@ def main [
 
   print $summary
   print $"decks written to ($build_dir | path join decks)"
+}
+
+# --- demos --------------------------------------------------------------------
+
+def demo-cwd [slug: string, fallback: string] {
+  let dir = $DEMO_CWD | get --optional $slug | default $fallback | path expand
+  if ($dir | path exists) {
+    $dir
+  } else {
+    print --stderr $"warning: ($dir) does not exist for ($slug), using ($fallback)"
+    $fallback
+  }
+}
+
+# Command to launch in the demo shell once it is open, so the section starts
+# with something on screen. Empty means leave the shell at its prompt.
+def demo-command [slug: string, cwd: string] {
+  match $slug {
+    "tuicr" => {
+      let pr = recent-own-pr $cwd
+      if ($pr | is-empty) { "" } else { $"tuicr pr ($pr)" }
+    }
+    _ => ""
+  }
+}
+
+# Number of the most recently updated PR authored by the current gh user in
+# the repo at cwd, preferring open ones.
+def recent-own-pr [cwd: string] {
+  for state in [open all] {
+    let res = do { cd $cwd; ^gh pr list --author @me --state $state --limit 1 --json number } | complete
+    if $res.exit_code != 0 {
+      print --stderr $"warning: gh pr list failed in ($cwd): ($res.stderr | str trim)"
+      return ""
+    }
+    let prs = $res.stdout | from json
+    if ($prs | is-not-empty) { return ($prs | first | get number | into string) }
+  }
+  print --stderr $"warning: no PRs by you found in ($cwd)"
+  ""
 }
 
 # --- markdown -----------------------------------------------------------------
