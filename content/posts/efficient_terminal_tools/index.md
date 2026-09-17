@@ -249,12 +249,36 @@ If you have used `tmux` you know the pitch: one terminal holds many shells, and 
 
 ---
 
-## pi
+## pi agent
 
-<!-- TODO: this is the big one. filled in next. -->
+The `pi` agent is a open source, highly extensible coding agent. It provides a harness for interacting with various model providers and a TUI for interfacing with said harness. It also provides a rich API for extending every aspect of the application in TypeScript.
+
+Critically, it also exposes documentation for this TypeScript extension system _to the agent itself_, allowing you to use `pi` to make changes to itself!
+
+This confers a _lot_ of benefits:
+
+### model providers
+
+With `pi`, I can easily switch between model providers. When I do this, I can keep the same tooling, skills, interface, etc. Most other harnesses (claude code, codex, etc) try to get you to lean on vendor-specific affordances like claude workflows or codex apps, but these have trouble getting adapted to other model providers.
+
+This has been especially helpful as of late, with the release of several capable and extremely cheap open source models. I am able to quickly switch provider and model based on the task at hand. This can extend nicely to things like using Fable 5.1 to orchestrate a subagent team of GLM 5.3 flash models, for example.
+
+### endless tweaking
+
+If part of the interface to the agent irk you, it is quite possible to tweak it to your heart's desire or to extend as you wish.
+
+I've always been annoyed at the typical text entry boxes for the other harnesses, and I wanted true Vim-style editing. In `pi`, I was able to embed an actual headless `neovim` instance which provides a seamless editing experience in the prompt field, while preserving the stock pi features like autocomplete.
+
+As for extending, the TUI API provided makes it trivial to make custom `/usage` displays covering your accounts, add profile switching, change statuslines, and whatever else you might want to adjust.
+
+### integrated tools
+
+`pi` lets you expose custom tools to your agent quite easily that can do a number of things. These can integrate with the TUI of the application to allow for some very nice human-in-the-loop workflows.
+
+A good example of this is my `/address-review-comments` workflow. It does the bookeeping of pulling all the contextual info about the pull request reviews for the agent and prompts it to work through each comment and present a checkpoint. This checkpoint displays a TUI menu where I can give feedback until it's right, then submit the changes. The actual GitHub operations get nicely abstracted from the agent and parallelized where possible to make for a very reliable experience.
 
 ---
 
-[^multithread]: A capable user of [GNU Parallel](https://www.gnu.org/software/parallel/) can make `grep` and `find` operations parallelized, which is useful in scripting. However, for most use cases, having these optimizations compiled in is very beneficial.
+\[^multithread\]: A capable user of [GNU Parallel](https://www.gnu.org/software/parallel/) can make `grep` and `find` operations parallelized, which is useful in scripting. However, for most use cases, having these optimizations compiled in is very beneficial.
 
-[^posix]: Similar to `fish`, `nu` is _extremely_ not POSIX compliant, so copy-pasting or running scripts with `nu` as the interpreter are bound to fail often. Never set a non-POSIX shell as your system's default shell. I set `nu` as the default program that launches when I start my TTY.
+\[^posix\]: Similar to `fish`, `nu` is _extremely_ not POSIX compliant, so copy-pasting or running scripts with `nu` as the interpreter are bound to fail often. Never set a non-POSIX shell as your system's default shell. I set `nu` as the default program that launches when I start my TTY.
