@@ -147,8 +147,8 @@ No.
 
 **Absolutely not.**[^nu] It was fun though, and I'm very pleased with the final product.
 
-\[^gha\]: This is likely an incoming blog, as GitHub actions can be very messy at times. See [fasterthanlime's excellent overview of the mess we are in](https://www.youtube.com/watch?v=9qljpi5jiMQ).
+[^gha]: This is likely an incoming blog, as GitHub actions can be very messy at times. See [fasterthanlime's excellent overview of the mess we are in](https://www.youtube.com/watch?v=9qljpi5jiMQ).
 
-\[^cachix\]: In all honesty, this addition was mostly an excuse for me to try out Cachix in a real use case. Overall, I have found it very pleasant to use.
+[^cachix]: In all honesty, this addition was mostly an excuse for me to try out Cachix in a real use case. Overall, I have found it very pleasant to use.
 
-\[^nu\]: I do plan on blogging about nushell in the future, so I guess it isn't fully useless.
+[^nu]: I do plan on blogging about nushell in the future, so I guess it isn't fully useless.

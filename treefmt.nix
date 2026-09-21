@@ -21,17 +21,17 @@
     mdformat = {
       enable = true;
       # github-style markdown formatting support
-      package = pkgs.mdformat.withPlugins (ps: [
+      plugins = ps: [
         ps.mdformat-gfm
         ps.mdformat-frontmatter
-        ps.mdformat-footnote # footnotes break othewise
+        ps.mdformat-footnote # footnotes break otherwise
         (ps.mdformat-toc.overrideAttrs {
           meta.broken = false;
           doCheck = false;
           doInstallCheck = false;
           pytestCheckPhase = "";
         })
-      ]);
+      ];
     };
   };
 

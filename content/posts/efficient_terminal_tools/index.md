@@ -15,6 +15,7 @@ In this post, I hope to give the best, most useful, and most practical terminal-
 - [prerequisite: you need a good tty](#prerequisite-you-need-a-good-tty)
 - [cht.sh](#chtsh)
 - [ripgrep and fd](#ripgrep-and-fd)
+- [gh](#gh)
 - [atuin](#atuin)
 - [yazi](#yazi)
 - [lazygit and lazydocker](#lazygit-and-lazydocker)
@@ -22,7 +23,11 @@ In this post, I hope to give the best, most useful, and most practical terminal-
 - [gh-stack](#gh-stack)
 - [tuicr](#tuicr)
 - [herdr](#herdr)
-- [pi](#pi)
+- [pi agent](#pi-agent)
+  - [model providers](#model-providers)
+  - [endless tweaking](#endless-tweaking)
+  - [integrated tools](#integrated-tools)
+  - [recommendations](#recommendations)
 
 <!-- mdformat-toc end -->
 
@@ -295,6 +300,6 @@ For those who are vim/neovim users, I'd also recommend my `npm:@bizmyth/pi-neovi
 
 ---
 
-\[^multi-thread\]: A capable user of [GNU Parallel](https://www.gnu.org/software/parallel/) can make `grep` and `find` operations parallelized, which is useful in scripting. However, for most use cases, having these optimizations compiled in is very beneficial.
+[^multi-thread]: A capable user of [GNU Parallel](https://www.gnu.org/software/parallel/) can make `grep` and `find` operations parallelized, which is useful in scripting. However, for most use cases, having these optimizations compiled in is very beneficial.
 
-\[^posix\]: Similar to `fish`, `nu` is _extremely_ not POSIX compliant, so copy-pasting or running scripts with `nu` as the interpreter are bound to fail often. Never set a non-POSIX shell as your system's default shell. I set `nu` as the default program that launches when I start my TTY.
+[^posix]: Similar to `fish`, `nu` is _extremely_ not POSIX compliant, so copy-pasting or running scripts with `nu` as the interpreter are bound to fail often. Never set a non-POSIX shell as your system's default shell. I set `nu` as the default program that launches when I start my TTY.
