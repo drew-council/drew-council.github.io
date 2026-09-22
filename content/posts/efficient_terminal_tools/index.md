@@ -85,7 +85,7 @@ First, you can use it directly from your browser _or through curl_: `curl cht.sh
 
 Or, you can install their [command line client](https://github.com/chubin/cheat.sh#command-line-client-chtsh). I prefer this, as you don't need to use URL syntax to search. I'll run `cht.sh tar`:
 
-{{< include-html "content/posts/efficient_terminal_tools/html/cht_sh.html" >}}
+{{< include-html "assets/efficient_terminal_tools/cht_sh.html" >}}
 
 ---
 
@@ -190,7 +190,7 @@ print $"Total size: ($total_size)"
 
 Here's what the script output looks like:
 
-{{< include-html "content/posts/efficient_terminal_tools/html/lfs_sizes.html" >}}
+{{< include-html "assets/efficient_terminal_tools/lfs_sizes.html" >}}
 
 The nice things here:
 
